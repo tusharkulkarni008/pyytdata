@@ -1,5 +1,5 @@
 import os
-
+import json 
 from apiclient.discovery import build
 
 from .info import Info
@@ -32,8 +32,17 @@ class VidQuerier(Info):
             )
         else:
             req = self.youtube.videos().list(part="snippet", id=self.id)
-
-        self.result = req.execute()
+        if os.path.exists(API_Cache.json) == False:
+            with open(API_Cache.json, "rw") as f:
+                print("API Cache created successfully")
+                api_data = json.load(f)
+                if self.id not in api_data.keys():
+                    self.result = req.execute()
+                    api_data.update({self.id , self.result})
+                else:
+                    self.result = api_data{self.id}
+       
+        
 
     def get_result(self):
         return self.result
