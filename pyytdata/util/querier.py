@@ -1,5 +1,7 @@
 import os
-import json 
+import json
+
+from matplotlib.font_manager import json_load 
 from apiclient.discovery import build
 
 from .info import Info
@@ -27,6 +29,10 @@ class VideoQuerier(Info):
 
     def fetch(self):
         req = self.query_youtube()
+        if self.id not in json_load("api_json.json").keys():
+            req.execute()
+        else:
+            cache = self.make_JSON()
         return req.execute()
 
     def get_result(self):
@@ -46,6 +52,18 @@ class VideoQuerier(Info):
             req = self.youtube.videos().list(part="snippet", id=self.id)
 
         self.result = req.execute()
+    
+    def make_JSON(self,):
+        if os.path.exists("api_json.json") == False:
+            with open("api_json.json" ,"a"):
+                print("json created successfully")
+        else:
+            print("json already exists")
+        f = json.load("api_json.json")
+        api_dict ={}
+        api_dict.update({self.id:self.result})
+        json.dumps(api_dict)
+        return f"cache updated  with{self.id}" 
 
     def get_result(self):
         return self.result
